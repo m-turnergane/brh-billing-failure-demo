@@ -17,7 +17,7 @@ const npm = (args, cwd) => execFileSync(process.execPath, [npmCli, ...args], { c
 const pkg = read(join(root, 'package.json'));
 const packDir = join(root, 'artifacts/pack'); mkdirSync(packDir, { recursive: true });
 const [packed] = JSON.parse(npm(['pack', '--json', '--pack-destination', packDir], root));
-const allowed = path => ['package.json', 'README.md', 'LICENSE', 'evidence/recordings.json', 'evidence/manifest.json'].includes(path) || /^src\/(demo\.tsx|data\.ts|fixtures\.mjs|verify\.mjs|styles\.css)$/.test(path);
+const allowed = path => ['package.json', 'README.md', 'LICENSE', 'evidence/recordings.json', 'evidence/manifest.json'].includes(path) || /^src\/(demo\.tsx|data\.ts|fixtures\.(mjs|d\.mts)|verify\.mjs|styles\.css)$/.test(path);
 if (!packed.files.every(file => allowed(file.path))) throw new Error('Unexpected file in public package');
 const archive = join(packDir, packed.filename);
 const archiveSha256 = createHash('sha256').update(readFileSync(archive)).digest('hex');
@@ -28,13 +28,17 @@ if (existsSync(manifestPath)) {
   if (previous.demoVersion === pkg.version && previous.released && previous.archiveSha256 !== archiveSha256) throw new Error('A released package version cannot be overwritten; bump demo version');
 }
 copyFileSync(archive, join(vendor, packed.filename));
-writeFileSync(manifestPath, JSON.stringify({ demoVersion: pkg.version, demoSourceRevision: revision, archive: packed.filename, archiveSha256, released: false, evidenceHashes: Object.fromEntries(records.map(record => [record.scenarioId, record.evidenceSha256])) }, null, 2) + '\n');
+const moduleFileHashes = Object.fromEntries(packed.files.map(file => [file.path, createHash('sha256').update(readFileSync(join(root, file.path))).digest('hex')]));
+writeFileSync(manifestPath, JSON.stringify({ demoVersion: pkg.version, demoSourceRevision: revision, archive: packed.filename, archiveSha256, released: false, moduleFileHashes, evidenceHashes: Object.fromEntries(records.map(record => [record.scenarioId, record.evidenceSha256])) }, null, 2) + '\n');
 const sitePkg = read(join(site, 'package.json'));
 sitePkg.dependencies[pkg.name] = `file:./vendor/${packed.filename}`;
 sitePkg.scripts['verify:demo'] = 'node scripts/verify-demo-package.mjs';
 sitePkg.scripts['prebuild'] = 'npm run verify:demo';
 writeFileSync(join(site, 'package.json'), JSON.stringify(sitePkg, null, 2) + '\n');
 // npm ci uses lock integrity; npm install refreshes an unreleased local archive safely.
-npm(['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund'], site);
+npm(['install', `file:./vendor/${packed.filename}`, '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund'], site);
+const lock = read(join(site, 'package-lock.json'));
+const expectedIntegrity = `sha512-${createHash('sha512').update(readFileSync(archive)).digest('base64')}`;
+if (lock.packages[`node_modules/${pkg.name}`]?.integrity !== expectedIntegrity) throw new Error('Lockfile retained an older archive; bump the package version before retrying');
 console.log(`Vendored ${packed.filename} from ${revision}; SHA-256 ${archiveSha256}`);
 console.log('Run npm ci in the website to install the exact committed archive.');

@@ -71,7 +71,7 @@ export function BillingFailureDemo({ scenarioId = DEFAULT_SCENARIO, onEvent, pro
   }
   const broken = ['broken', 'checking', 'caught'].includes(phase);
   const reproduced = projectBroken(scenarioId, fixtures[scenarioId], recording.observations);
-  const actual = scenarioId === 'duplicate-delivery' ? String(reproduced.credits) : planForKeys(scenarioId, reproduced.keys);
+  const actual = scenarioId === 'duplicate-delivery' ? String(reproduced.credits) : planForKeys(scenarioId, reproduced.keys ?? []);
   const conclusion = broken ? `${scenario.unit}: expected ${scenario.expected}, actual ${actual}.` : '';
 
   return (
