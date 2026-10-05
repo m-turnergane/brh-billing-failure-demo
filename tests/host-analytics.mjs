@@ -70,6 +70,7 @@ try {
   await offline.getByRole('region', { name: 'Recorded BRH result' }).waitFor();
   await offline.getByRole('link', { name: 'See BRH', exact: true }).click();
   await offline.waitForURL(url => url.pathname === '/');
+  await offline.waitForFunction(() => Array.from(document.querySelectorAll('a')).some(link => link.textContent === 'Try the demo' && link.href.includes('utm_source=blocked')));
   assert.match(await offline.getByRole('link', { name: 'Try the demo', exact: true }).first().getAttribute('href'), /utm_source=blocked/);
   assert.deepEqual(failures, []); await blocked.close();
   console.log('Host GA4 queue: event order, real repeat actions, Strict Mode deduplication, sanitized attribution, scenario/product/checkout retention, single tag, manual pageviews, discovery and blocked tracking pass. Google/checkout network requests were aborted.');
