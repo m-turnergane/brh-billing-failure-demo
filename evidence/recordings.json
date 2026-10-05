@@ -1,0 +1,323 @@
+[
+  {
+    "evidenceSchemaVersion": 1,
+    "scenarioId": "entitlement-mismatch",
+    "checkId": "E1",
+    "brhVersion": "0.2.0",
+    "privateSourceCommitSha": "9d69f5aca6df6261b1522f9270a0e450104f896c",
+    "generatedAt": "2026-10-05T21:04:00.651Z",
+    "scenarioVersion": 1,
+    "fixtureVersion": 1,
+    "fixtureSha256": "136fd69008829508dd08934103e9abb7ad57300883bdae36789a1ab9de98f38c",
+    "observations": [
+      {
+        "kind": "projection-seeded",
+        "keys": [
+          "obsolete-feature"
+        ]
+      },
+      {
+        "kind": "authority",
+        "keys": [
+          "feature-1",
+          "feature-2"
+        ]
+      },
+      {
+        "kind": "signature",
+        "eventId": "event-1",
+        "valid": true
+      },
+      {
+        "kind": "projection-write",
+        "eventId": "event-1",
+        "eventCreated": 0,
+        "keys": [
+          "free-feature"
+        ]
+      },
+      {
+        "kind": "response",
+        "eventId": "event-1",
+        "status": 200
+      },
+      {
+        "kind": "projection-observed",
+        "keys": [
+          "free-feature"
+        ]
+      }
+    ],
+    "applicationState": {
+      "keys": [
+        "free-feature"
+      ]
+    },
+    "brokenResult": {
+      "scenario": "E1",
+      "name": "E1: Entitlement happy path",
+      "status": "FAIL",
+      "passed": false,
+      "message": "Committed entitlements differ: expected [\"feature-1\",\"feature-2\"], got [\"free-feature\"]"
+    },
+    "correctedResult": {
+      "scenario": "E1",
+      "name": "E1: Entitlement happy path",
+      "status": "PASS",
+      "passed": true,
+      "message": "Configured application controls and committed state met the assertions"
+    },
+    "evidenceSha256": "216f53d7658269990f810d4998b6f81793cc35a823fdc0d729ae704d53a82430"
+  },
+  {
+    "evidenceSchemaVersion": 1,
+    "scenarioId": "ack-before-persistence",
+    "checkId": "E5",
+    "brhVersion": "0.2.0",
+    "privateSourceCommitSha": "9d69f5aca6df6261b1522f9270a0e450104f896c",
+    "generatedAt": "2026-10-05T21:04:00.651Z",
+    "scenarioVersion": 1,
+    "fixtureVersion": 1,
+    "fixtureSha256": "0e0ddbd4f8f69cfe07f2fea40b8e6aeab5fca9e07c954d1d6cf848c1efe3afd0",
+    "observations": [
+      {
+        "kind": "projection-seeded",
+        "keys": [
+          "obsolete-feature"
+        ]
+      },
+      {
+        "kind": "authority",
+        "keys": [
+          "retry-feature"
+        ]
+      },
+      {
+        "kind": "fault-observed",
+        "count": 0
+      },
+      {
+        "kind": "signature",
+        "eventId": "event-1",
+        "valid": true
+      },
+      {
+        "kind": "response",
+        "eventId": "event-1",
+        "status": 200
+      },
+      {
+        "kind": "persistence-failure",
+        "eventId": "event-1",
+        "message": "Injected demo persistence failure"
+      },
+      {
+        "kind": "fault-observed",
+        "count": 1
+      }
+    ],
+    "applicationState": {
+      "keys": [
+        "obsolete-feature"
+      ]
+    },
+    "brokenResult": {
+      "scenario": "E5",
+      "name": "E5: Hard ACK persistence failure and retry",
+      "status": "FAIL",
+      "passed": false,
+      "message": "Hard ACK must return retryable 5xx after persistence failure, got 200"
+    },
+    "correctedResult": {
+      "scenario": "E5",
+      "name": "E5: Hard ACK persistence failure and retry",
+      "status": "PASS",
+      "passed": true,
+      "message": "Configured application controls and committed state met the assertions"
+    },
+    "evidenceSha256": "caa7402084ee2b91b10ceeed82836946cdf9f198e37605506db2350b5e36526f"
+  },
+  {
+    "evidenceSchemaVersion": 1,
+    "scenarioId": "duplicate-delivery",
+    "checkId": "E7",
+    "brhVersion": "0.2.0",
+    "privateSourceCommitSha": "9d69f5aca6df6261b1522f9270a0e450104f896c",
+    "generatedAt": "2026-10-05T21:04:00.651Z",
+    "scenarioVersion": 1,
+    "fixtureVersion": 1,
+    "fixtureSha256": "4eb30895060149e9672ce4bc73deaf4d590381a6a02e64feeaf8bdc475a46e7e",
+    "observations": [
+      {
+        "kind": "payment-observed",
+        "fulfillmentCount": 0,
+        "credits": 0
+      },
+      {
+        "kind": "signature",
+        "eventId": "event-1",
+        "valid": true
+      },
+      {
+        "kind": "signature",
+        "eventId": "event-1",
+        "valid": true
+      },
+      {
+        "kind": "signature",
+        "eventId": "event-1",
+        "valid": true
+      },
+      {
+        "kind": "payment-write",
+        "eventId": "event-1",
+        "grant": 7,
+        "credits": 7,
+        "fulfillmentCount": 1
+      },
+      {
+        "kind": "response",
+        "eventId": "event-1",
+        "status": 409
+      },
+      {
+        "kind": "response",
+        "eventId": "event-1",
+        "status": 409
+      },
+      {
+        "kind": "response",
+        "eventId": "event-1",
+        "status": 200
+      },
+      {
+        "kind": "signature",
+        "eventId": "event-1",
+        "valid": true
+      },
+      {
+        "kind": "payment-write",
+        "eventId": "event-1",
+        "grant": 7,
+        "credits": 14,
+        "fulfillmentCount": 2
+      },
+      {
+        "kind": "response",
+        "eventId": "event-1",
+        "status": 200
+      },
+      {
+        "kind": "payment-observed",
+        "fulfillmentCount": 2,
+        "credits": 14
+      }
+    ],
+    "applicationState": {
+      "fulfillmentCount": 2,
+      "credits": 14
+    },
+    "brokenResult": {
+      "scenario": "E7",
+      "name": "E7: Concurrent duplicate durable fulfillment",
+      "status": "FAIL",
+      "passed": false,
+      "message": "Durable payment state differs: expected 1 fulfillment(s)/7 credits, got {\"fulfillmentCount\":2,\"credits\":14}"
+    },
+    "correctedResult": {
+      "scenario": "E7",
+      "name": "E7: Concurrent duplicate durable fulfillment",
+      "status": "PASS",
+      "passed": true,
+      "message": "Configured application controls and committed state met the assertions"
+    },
+    "evidenceSha256": "bd741696e5590b86514beefc776a794486b77854aa664f3a958d28fdcf9f2652"
+  },
+  {
+    "evidenceSchemaVersion": 1,
+    "scenarioId": "out-of-order-events",
+    "checkId": "E8",
+    "brhVersion": "0.2.0",
+    "privateSourceCommitSha": "9d69f5aca6df6261b1522f9270a0e450104f896c",
+    "generatedAt": "2026-10-05T21:04:00.651Z",
+    "scenarioVersion": 1,
+    "fixtureVersion": 1,
+    "fixtureSha256": "626d8c4a75dd1445addfc0ea54cc8928f4ed5130bf772cd11cb0eacdbce89eb9",
+    "observations": [
+      {
+        "kind": "projection-seeded",
+        "keys": [
+          "obsolete-feature"
+        ]
+      },
+      {
+        "kind": "authority",
+        "keys": [
+          "current-feature"
+        ]
+      },
+      {
+        "kind": "signature",
+        "eventId": "event-1",
+        "valid": true
+      },
+      {
+        "kind": "projection-write",
+        "eventId": "event-1",
+        "eventCreated": 60,
+        "keys": [
+          "current-feature"
+        ]
+      },
+      {
+        "kind": "response",
+        "eventId": "event-1",
+        "status": 200
+      },
+      {
+        "kind": "signature",
+        "eventId": "event-2",
+        "valid": true
+      },
+      {
+        "kind": "projection-write",
+        "eventId": "event-2",
+        "eventCreated": 0,
+        "keys": [
+          "stale-feature"
+        ]
+      },
+      {
+        "kind": "response",
+        "eventId": "event-2",
+        "status": 200
+      },
+      {
+        "kind": "projection-observed",
+        "keys": [
+          "stale-feature"
+        ]
+      }
+    ],
+    "applicationState": {
+      "keys": [
+        "stale-feature"
+      ]
+    },
+    "brokenResult": {
+      "scenario": "E8",
+      "name": "E8: Stale summaries and concurrent projection",
+      "status": "FAIL",
+      "passed": false,
+      "message": "Committed entitlements differ: expected [\"current-feature\"], got [\"stale-feature\"]"
+    },
+    "correctedResult": {
+      "scenario": "E8",
+      "name": "E8: Stale summaries and concurrent projection",
+      "status": "PASS",
+      "passed": true,
+      "message": "Configured application controls and committed state met the assertions"
+    },
+    "evidenceSha256": "bb5b19433a2018b8e18ab1cca5e2d4bc869a41babed1b08d49fdd35ebefd36ac"
+  }
+]

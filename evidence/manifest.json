@@ -1,0 +1,31 @@
+{
+  "evidenceSchemaVersion": 1,
+  "brhVersion": "0.2.0",
+  "privateSourceCommitSha": "9d69f5aca6df6261b1522f9270a0e450104f896c",
+  "scenarios": {
+    "entitlement-mismatch": {
+      "scenarioVersion": 1,
+      "fixtureVersion": 1,
+      "fixtureSha256": "136fd69008829508dd08934103e9abb7ad57300883bdae36789a1ab9de98f38c",
+      "evidenceSha256": "216f53d7658269990f810d4998b6f81793cc35a823fdc0d729ae704d53a82430"
+    },
+    "ack-before-persistence": {
+      "scenarioVersion": 1,
+      "fixtureVersion": 1,
+      "fixtureSha256": "0e0ddbd4f8f69cfe07f2fea40b8e6aeab5fca9e07c954d1d6cf848c1efe3afd0",
+      "evidenceSha256": "caa7402084ee2b91b10ceeed82836946cdf9f198e37605506db2350b5e36526f"
+    },
+    "duplicate-delivery": {
+      "scenarioVersion": 1,
+      "fixtureVersion": 1,
+      "fixtureSha256": "4eb30895060149e9672ce4bc73deaf4d590381a6a02e64feeaf8bdc475a46e7e",
+      "evidenceSha256": "bd741696e5590b86514beefc776a794486b77854aa664f3a958d28fdcf9f2652"
+    },
+    "out-of-order-events": {
+      "scenarioVersion": 1,
+      "fixtureVersion": 1,
+      "fixtureSha256": "626d8c4a75dd1445addfc0ea54cc8928f4ed5130bf772cd11cb0eacdbce89eb9",
+      "evidenceSha256": "bb5b19433a2018b8e18ab1cca5e2d4bc869a41babed1b08d49fdd35ebefd36ac"
+    }
+  }
+}

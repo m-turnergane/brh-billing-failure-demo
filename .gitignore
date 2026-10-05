@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+artifacts/
+*.tsbuildinfo
+.env*
+!.env.example
+*.tgz
+next-env.d.ts
