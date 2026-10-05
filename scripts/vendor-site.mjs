@@ -23,13 +23,15 @@ const archive = join(packDir, packed.filename);
 const archiveSha256 = createHash('sha256').update(readFileSync(archive)).digest('hex');
 const vendor = join(site, 'vendor'); mkdirSync(vendor, { recursive: true });
 const manifestPath = join(vendor, 'demo-package.json');
+let released = false;
 if (existsSync(manifestPath)) {
   const previous = read(manifestPath);
   if (previous.demoVersion === pkg.version && previous.released && previous.archiveSha256 !== archiveSha256) throw new Error('A released package version cannot be overwritten; bump demo version');
+  released = previous.demoVersion === pkg.version && previous.released === true;
 }
 copyFileSync(archive, join(vendor, packed.filename));
 const moduleFileHashes = Object.fromEntries(packed.files.map(file => [file.path, createHash('sha256').update(readFileSync(join(root, file.path))).digest('hex')]));
-writeFileSync(manifestPath, JSON.stringify({ demoVersion: pkg.version, demoSourceRevision: revision, archive: packed.filename, archiveSha256, released: false, moduleFileHashes, evidenceHashes: Object.fromEntries(records.map(record => [record.scenarioId, record.evidenceSha256])) }, null, 2) + '\n');
+writeFileSync(manifestPath, JSON.stringify({ demoVersion: pkg.version, demoSourceRevision: revision, archive: packed.filename, archiveSha256, released, moduleFileHashes, evidenceHashes: Object.fromEntries(records.map(record => [record.scenarioId, record.evidenceSha256])) }, null, 2) + '\n');
 const sitePkg = read(join(site, 'package.json'));
 sitePkg.dependencies[pkg.name] = `file:./vendor/${packed.filename}`;
 sitePkg.scripts['verify:demo'] = 'node scripts/verify-demo-package.mjs';

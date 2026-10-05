@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import assert from 'node:assert/strict';
 
 const base = process.env.DEMO_BASE || 'http://127.0.0.1:43128';
-const out = resolve('artifacts/screenshots'); mkdirSync(out, { recursive: true });
+const out = resolve(process.env.SCREENSHOT_DIR || 'artifacts/screenshots'); mkdirSync(out, { recursive: true });
 const browser = await chromium.launch();
 const problems = [];
 const results = [];
@@ -63,6 +63,14 @@ try {
   await page.getByRole('heading', { name: 'Out-of-order events', exact: true }).waitFor();
   await page.goBack();
   await page.getByRole('heading', { name: 'Duplicate delivery', exact: true }).waitFor();
+  await page.getByRole('button', { name: 'Break it', exact: true }).click();
+  await page.getByRole('button', { name: 'Replay BRH check', exact: true }).click();
+  await page.getByRole('region', { name: 'Recorded BRH result' }).waitFor();
+  await page.getByRole('link', { name: /Yesterday wins/ }).click();
+  await page.getByRole('heading', { name: 'Out-of-order events', exact: true }).waitFor();
+  await page.goBack();
+  await page.getByRole('button', { name: 'Break it', exact: true }).waitFor();
+  assert.equal(await page.getByRole('region', { name: 'Recorded BRH result' }).count(), 0);
   const notFound = await page.goto(`${base}/demo/no-such-scenario`);
   assert.equal(notFound.status(), 404);
   results.push('Cancellation on reset/switch, browser back and invalid route pass');
