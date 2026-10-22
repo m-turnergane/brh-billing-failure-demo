@@ -5,12 +5,13 @@ application granting the wrong access even when its simulated billing signals
 look healthy. Break a flow, reveal the application state, then replay the actual
 Billing Reliability Harness (BRH) result that rejected the broken integration.
 
-[Proposed hosted demo](https://stripe-entitlements-harness-webapp.vercel.app/demo)
+[Hosted demo](https://stripe-entitlements-harness-webapp.vercel.app/demo)
 · [BRH product](https://stripe-entitlements-harness-webapp.vercel.app/)
 
-The hosted URLs and public GitHub repository are prepared for publication;
-publication is pending. This repository is the standalone wrapper and shared UI
-used by the hosted BRH website, rather than another billing product.
+This repository is the standalone wrapper and shared UI used by the hosted BRH
+demo, rather than another billing product. The demo replays recorded BRH results
+against small in-memory adapters; it does not connect to Stripe or inspect your
+application.
 
 ## Run locally
 
