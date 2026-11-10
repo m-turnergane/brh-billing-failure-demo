@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { DEFAULT_SCENARIO, getRecording, getScenario, PRODUCT_URL, SOURCE_URL, scenarios, type DemoEvent, type ScenarioId } from './data';
+import { CHECKOUT_URL, DEFAULT_SCENARIO, getRecording, getScenario, PRODUCT_URL, SOURCE_URL, scenarios, type DemoEvent, type ScenarioId } from './data';
 import { fixtures, planForKeys, projectBroken } from './fixtures.mjs';
 
 type Phase = 'ready' | 'running' | 'broken' | 'checking' | 'caught';
@@ -84,13 +84,13 @@ export function BillingFailureDemo({ scenarioId = DEFAULT_SCENARIO, onEvent, pro
   return (
     <div className="brh-demo">
       <a className="brh-skip" href="#billing-proof">Skip to the demo</a>
-      <header className="brh-demo-nav"><Link className="brh-brand" href={productUrl}>▥ <span>BRH</span><span className="brh-brand-caption">BILLING RELIABILITY HARNESS</span></Link><span className="brh-nav-note">A small failure. A real check.</span></header>
+      <header className="brh-demo-nav"><Link className="brh-brand" href={productUrl}>▥ <span>BRH</span><span className="brh-brand-caption">BILLING RELIABILITY HARNESS</span></Link><div className="brh-nav-actions"><span className="brh-nav-note">A small failure. A real check.</span><a className="brh-nav-buy" href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer">Get Founding Edition — $79</a></div></header>
       <main className="brh-shell">
         <section className="brh-intro">
           <div className="brh-eyebrow"><span className="brh-dot" />THE GAP BETWEEN PAID AND WORKING</div>
           <h1>Your Stripe checkout can succeed<br className="brh-desktop-break" /> <span>while your product fails.</span></h1>
-          <p>Break a billing flow. Watch BRH catch it.</p>
-          <div className="brh-replay-label"><span aria-hidden="true">◷</span> Recorded BRH check · simulated Stripe events <span className="brh-no-card">No account. No card. No Stripe keys.</span></div>
+          <p>Break a simulated billing flow. Watch the recorded check catch it.</p>
+          <div className="brh-replay-label"><span aria-hidden="true">◷</span> Recorded check · simulated Stripe events — this demo does not test your application. <span className="brh-no-card">No account. No card. No Stripe keys.</span></div>
         </section>
         <nav className="brh-scenarios" aria-label="Choose a failure scenario">
           {scenarios.map(item => <Link key={item.id} href={`/demo/${item.id}${query}`} aria-current={item.id === scenarioId ? 'page' : undefined} className={item.id === scenarioId ? 'brh-choice brh-choice-active' : 'brh-choice'} onClick={() => { if (item.id !== scenarioId) { clear(); selectedByUser.add(item.id); } }}><span className="brh-choice-number">{item.number}</span><span>{item.title}</span><span className="brh-choice-arrow" aria-hidden="true">↗</span></Link>)}
@@ -105,7 +105,7 @@ export function BillingFailureDemo({ scenarioId = DEFAULT_SCENARIO, onEvent, pro
           <div className="brh-announcement" role="status" aria-live="polite" aria-atomic="true">{phase === 'caught' ? `BRH ${recording.checkId} FAIL. ${scenario.invariant}. ${conclusion}` : conclusion}</div>
         </section>
         {phase === 'caught' ? <section ref={resultPanel} className="brh-result" aria-label="Recorded BRH result"><div className="brh-result-head"><span className="brh-fail-pill">FAIL</span><h2>{scenario.invariant}</h2><span className="brh-check-id">BRH / {recording.checkId}</span></div><div className="brh-result-body"><div className="brh-result-comparison"><div><span>EXPECTED</span><strong>{scenario.expected}</strong></div><div><span>ACTUAL</span><strong>{actual}</strong></div></div><p>{recording.brokenResult.message}</p><div className="brh-corrected"><span>✓</span> Corrected control: <strong>{recording.correctedResult.status}</strong></div></div><div className="brh-result-foot"><strong>Billing succeeded. The product did not.</strong><p>{scenario.fix}</p></div><details className="brh-evidence"><summary>Inspect the recorded evidence <span>v{recording.brhVersion} · {recording.checkId}</span></summary><p>Actual BRH output from a private deterministic run. These in-memory controls demonstrate the assertion; they do not certify production database durability. The browser replays this recording.</p><dl><dt>Generated</dt><dd>{recording.generatedAt}</dd><dt>Private source revision</dt><dd>{recording.privateSourceCommitSha}</dd><dt>Evidence SHA-256</dt><dd>{recording.evidenceSha256}</dd></dl><pre>{JSON.stringify(recording, null, 2)}</pre></details></section> : null}
-        {phase === 'caught' ? <section className="brh-conversion"><div><span className="brh-eyebrow">BEFORE A REAL CUSTOMER FINDS IT</span><h2>BRH tests these failure modes<br />before a real customer hits them.</h2><p>Wire the harness to your application. Prove the state, not just the response.</p></div><div className="brh-conversion-links"><Link href={`${productUrl}${query}`} className="brh-button brh-primary" onClick={() => emit('see_brh_click')}>See BRH <Arrow /></Link><a href={sourceUrl} className="brh-source" target="_blank" rel="noopener noreferrer" title="Proposed public repository; publication pending">View source on GitHub <Arrow /></a></div></section> : null}
+        {phase === 'caught' ? <section className="brh-conversion"><div><span className="brh-eyebrow">BEFORE A REAL CUSTOMER FINDS IT</span><h2>BRH tests these failure modes<br />before a real customer hits them.</h2><p>Wire the harness to your application. Prove the state, not just the response.</p></div><div className="brh-conversion-links"><a className="brh-button brh-primary" href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer">Get Founding Edition — $79 <Arrow /></a><p className="brh-offer">Full TypeScript source, E1–E9 conformance suite, Next.js reference integration, updates through v1.x.</p><Link href={`${productUrl}${query}`} className="brh-source" onClick={() => emit('see_brh_click')}>See BRH <Arrow /></Link><a href={sourceUrl} className="brh-source" target="_blank" rel="noopener noreferrer" title="Proposed public repository; publication pending">View source on GitHub <Arrow /></a></div></section> : null}
         <footer className="brh-demo-footer"><span>Payment success is not product success.</span><span>Four fixtures. One idea.</span></footer>
       </main>
     </div>

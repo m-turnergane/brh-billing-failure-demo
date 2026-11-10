@@ -4,6 +4,8 @@ import { resolve } from 'node:path';
 import assert from 'node:assert/strict';
 
 const base = process.env.DEMO_BASE || 'http://127.0.0.1:43128';
+const checkoutUrl = 'https://buy.polar.sh/polar_cl_RQEYV2XIOiZnxlCH8mTPQnEtGPgJEtDWUtKDo1svHqm';
+const offer = 'Full TypeScript source, E1–E9 conformance suite, Next.js reference integration, updates through v1.x.';
 const out = resolve(process.env.SCREENSHOT_DIR || 'artifacts/screenshots'); mkdirSync(out, { recursive: true });
 const browser = await chromium.launch();
 const problems = [];
@@ -20,6 +22,27 @@ try {
     const response = await page.goto(`${base}/demo/${id}?utm_source=dev&utm_medium=comment&utm_campaign=billing-proof`, { waitUntil: 'networkidle' });
     assert.equal(response.status(), 200);
     await page.getByRole('button', { name: 'Break it', exact: true }).waitFor();
+    const introOrder = await page.evaluate(() => {
+      const intro = document.querySelector('.brh-intro');
+      const heading = intro.querySelector('h1');
+      const subhead = intro.querySelector('p');
+      const disclosure = intro.querySelector('.brh-replay-label');
+      const action = document.querySelector('button.brh-primary');
+      const follows = (earlier, later) => Boolean(earlier.compareDocumentPosition(later) & Node.DOCUMENT_POSITION_FOLLOWING);
+      return {
+        heading: heading.textContent.replace(/\s+/g, ' ').trim(),
+        subhead: subhead.textContent.trim(),
+        disclosure: disclosure.textContent.replace(/\s+/g, ' ').trim(),
+        qualifiedBeforeBreak: follows(heading, subhead) && follows(subhead, disclosure) && intro.contains(disclosure) && follows(intro, action),
+      };
+    });
+    assert.equal(introOrder.heading, 'Your Stripe checkout can succeed while your product fails.');
+    assert.equal(introOrder.subhead, 'Break a simulated billing flow. Watch the recorded check catch it.');
+    assert.match(introOrder.disclosure, /Recorded check · simulated Stripe events — this demo does not test your application\./);
+    assert.equal(introOrder.qualifiedBeforeBreak, true);
+    assert.equal(await page.locator('.brh-nav-buy').getAttribute('href'), checkoutUrl);
+    assert.equal(await page.locator('a[href="' + checkoutUrl + '"]').count(), 1);
+    assert.equal(await page.locator('.brh-offer').count(), 0);
     assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'), `https://stripe-entitlements-harness-webapp.vercel.app/demo/${id}`);
     assert.match(await page.locator('meta[property="og:image"]').getAttribute('content'), new RegExp(`/demo/${id}/opengraph-image`));
     const og = await context.request.get(`${base}/demo/${id}/opengraph-image`);
@@ -32,6 +55,22 @@ try {
     await page.getByRole('button', { name: 'Replay BRH check', exact: true }).click();
     await page.getByRole('region', { name: 'Recorded BRH result' }).waitFor();
     assert.match(await page.getByRole('region', { name: 'Recorded BRH result' }).innerText(), /FAIL[\s\S]*Corrected control: PASS/);
+    const purchase = await page.evaluate(checkoutUrl => {
+      const footer = document.querySelector('.brh-demo-footer');
+      const beforeFooter = node => Boolean(node.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING);
+      const links = [...document.querySelectorAll('a')].filter(link => link.getAttribute('href') === checkoutUrl);
+      const offerNode = document.querySelector('.brh-offer');
+      return {
+        links: links.length,
+        endState: links.some(link => link.classList.contains('brh-button')),
+        offer: offerNode?.textContent.trim(),
+        aboveFooter: links.every(beforeFooter) && beforeFooter(offerNode),
+      };
+    }, checkoutUrl);
+    assert.equal(purchase.links, 2);
+    assert.equal(purchase.endState, true);
+    assert.equal(purchase.offer, offer);
+    assert.equal(purchase.aboveFooter, true);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), true);
     await page.screenshot({ path: `${out}/desktop-${id}.png`, fullPage: true });
     const logged = await events();
@@ -46,6 +85,9 @@ try {
     await page.getByRole('button', { name: 'Replay BRH check again' }).waitFor();
     await page.getByRole('button', { name: 'Reset demo' }).click();
     assert.equal(await page.getByRole('region', { name: 'Recorded BRH result' }).count(), 0);
+    assert.equal(await page.locator('.brh-offer').count(), 0);
+    assert.equal(await page.locator('a[href="' + checkoutUrl + '"]').count(), 1);
+    assert.equal(await page.locator('.brh-nav-buy').getAttribute('href'), checkoutUrl);
     await page.getByRole('button', { name: 'Break it', exact: true }).waitFor();
     results.push(`${id}: billing state, actual recorded result, replay, reset, metadata, OG and layout pass`);
   }
