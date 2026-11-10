@@ -2,6 +2,7 @@ import recordings from '../evidence/recordings.json';
 
 export const PRODUCT_URL = 'https://stripe-entitlements-harness-webapp.vercel.app';
 export const SOURCE_URL = 'https://github.com/m-turnergane/brh-billing-failure-demo';
+export const CHECKOUT_URL = 'https://buy.polar.sh/polar_cl_RQEYV2XIOiZnxlCH8mTPQnEtGPgJEtDWUtKDo1svHqm';
 export const DEFAULT_SCENARIO = 'entitlement-mismatch';
 export const scenarios = [
   { id: 'entitlement-mismatch', checkId: 'E1', number: '01', title: 'Wrong access', name: 'Entitlement mismatch', description: 'A paid PRO_ANNUAL purchase. A FREE customer.', fault: 'The application maps paid capabilities to the wrong plan.', invariant: 'Entitlement projection mismatch', expected: 'PRO', actual: 'FREE', unit: 'Customer access', fix: 'Compare the exact application feature set with current entitlement authority.' },
